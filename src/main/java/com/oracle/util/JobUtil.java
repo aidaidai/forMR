@@ -20,7 +20,7 @@ import java.net.URISyntaxException;
  * Created by DJP on 2018/1/2.
  * 将包含mapper等内部类的class对象传入第一个参数
  * 就可以自动的获取key 和value等类型
- * 要求 Mapper类的类名要包含Mapper字样 'Reducer' 类的类名要包含 'Reducer'字样
+ * 要求 Mapper类的类名要包含'Mapper' 字样 Reducer 类的类名要包含 'Reducer'字样
  * 切静态内部类 Mapper 和  Reducer 应该声明为 public 
  */
 public class JobUtil {

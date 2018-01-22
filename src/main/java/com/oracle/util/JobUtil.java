@@ -7,10 +7,7 @@ import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.DefaultCodec;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -38,17 +35,17 @@ public class JobUtil {
       public static void  commitJob(Class<?> mr,String input,String output,Object... obj) {
          String path= mr.getClass().getResource("/").getPath();
           if(output==null||output.equals("")){
-              output=path.substring(0,path.indexOf("classes"))+"output/";
+              output="file://"+path.substring(0,path.indexOf("classes"))+"output/";
           }
  //---------------------------------------------------------------------------------------------------------------------
           Class reduceClass=null;
           Class mapClass=null;
           Class [] classes=mr.getClasses();
           for(Class cs:classes){
-              if(cs.getTypeName().contains("Mapper")){
+              if(cs.getName().contains("Mapper")){
                   mapClass=cs;
               }
-              if(cs.getTypeName().contains("Reducer")){
+              if(cs.getName().contains("Reducer")){
                   reduceClass=cs;
               }
           }
@@ -62,7 +59,7 @@ public class JobUtil {
                   job=Job.getInstance(haveConfig(obj));
               }
 
-              job.setJarByClass(mr);//设置j有主方法的那个类
+              job.setJarByClass(mr);//设置job有主方法的那个类
 //----------------------------------------------------------------------------------------------------------------------
               if(mapClass!=null){
                   job.setMapperClass(mapClass);
@@ -117,12 +114,15 @@ public class JobUtil {
                       FileOutputFormat.setCompressOutput(job,true);
                       FileOutputFormat.setOutputCompressorClass(job, (Class<? extends CompressionCodec>) o.getClass());
                   }
+                  if(o instanceof OutputFormat){
+                      job.setOutputFormatClass((Class<? extends OutputFormat>) o.getClass());
+                  }
               }
 
 
 //----------------------------------------------------------------------------------------------------------------------
               FileInputFormat.setInputPaths(job,new Path(input));
-              FileSystem fileSystem=FileSystem.get(new URI("file://"+output),new Configuration());
+              FileSystem fileSystem=FileSystem.get(new URI(output),new Configuration());
               if(fileSystem.exists(new Path(output))){
                   fileSystem.delete(new Path(output), true);
               }

@@ -5,6 +5,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.WritableComparator;
+import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.DefaultCodec;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -105,13 +107,19 @@ public class JobUtil {
                       job.setGroupingComparatorClass( (Class<? extends WritableComparator> )o.getClass());
                   }
                   //如果这个类的父类的父类是WritableComparator说明要设置的SortComparator
-                  if( o.getClass().getSuperclass().getSuperclass().equals(WritableComparator.class)) { // set comparator
+                  if( o.getClass().getSuperclass().getSuperclass()!=null && o.getClass().getSuperclass().getSuperclass().equals(WritableComparator.class)) { // set comparator
                       job.setSortComparatorClass((Class<? extends RawComparator>) o.getClass());
                   }
                   if(o instanceof InputFormat){
                       job.setInputFormatClass((Class<? extends InputFormat>) o.getClass());
                   }
+                  if(o instanceof  DefaultCodec){
+                      FileOutputFormat.setCompressOutput(job,true);
+                      FileOutputFormat.setOutputCompressorClass(job, (Class<? extends CompressionCodec>) o.getClass());
+                  }
               }
+
+
 //----------------------------------------------------------------------------------------------------------------------
               FileInputFormat.setInputPaths(job,new Path(input));
               FileSystem fileSystem=FileSystem.get(new URI("file://"+output),new Configuration());

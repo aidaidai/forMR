@@ -65,8 +65,6 @@ public class JobUtil {
                   job.setMapperClass(mapClass);
                   ParameterizedType pt = ((ParameterizedType) mapClass.getGenericSuperclass());
                   //获得map class 中的 out key 和out value
-                  System.out.println(pt.getActualTypeArguments()[2].toString().substring(6));
-                  System.out.println(pt.getActualTypeArguments()[3].toString().substring(6));
                   job.setMapOutputKeyClass(Class.forName(pt.getActualTypeArguments()[2].toString().substring(6)));
                   job.setMapOutputValueClass(Class.forName(pt.getActualTypeArguments()[3].toString().substring(6)));
               }else {

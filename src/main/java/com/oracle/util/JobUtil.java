@@ -18,7 +18,7 @@ import java.net.URISyntaxException;
 
 /**
  * Created by DJP on 2018/1/2.
- * 将包含mapper等内部类的class对象传入第一个参数
+ * 将包含mapper等内    部类的class对象传入第一个参数
  * 就可以自动的获取key 和value等类型
  * 要求 Mapper类的类名要包含'Mapper' 字样 Reducer 类的类名要包含 'Reducer'字样
  * 切静态内部类 Mapper 和  Reducer 应该声明为 public 
@@ -33,6 +33,9 @@ public class JobUtil {
      */
       @SuppressWarnings("unchecked")
       public static void  commitJob(Class<?> mr,String input,String output,Object... obj) {
+          if(input==null||input.equals("")){
+              throw new RuntimeException("input path is invalid");
+          }
          String path= mr.getClass().getResource("/").getPath();
           if(output==null||output.equals("")){
               output="file://"+path.substring(0,path.indexOf("classes"))+"output/";
@@ -116,8 +119,6 @@ public class JobUtil {
                       job.setOutputFormatClass((Class<? extends OutputFormat>) o.getClass());
                   }
               }
-
-
 //----------------------------------------------------------------------------------------------------------------------
               FileInputFormat.setInputPaths(job,new Path(input));
               FileSystem fileSystem=FileSystem.get(new URI(output),new Configuration());
